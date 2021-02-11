@@ -1,7 +1,11 @@
 #![allow(dead_code, unused_variables, unused_assignments, unused_mut)]
 
+mod lifetimes;
+mod enums;
+
 mod panic;
-mod option;
 mod result;
 
-fn main() {}
+fn main() {
+    println!("CIS 198 Lecture 4");
+}
