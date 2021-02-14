@@ -38,10 +38,7 @@ fn get_current_day(day: usize) -> DayData {
 #[test]
 fn test_day() {
     let day: DayData = get_current_day(4);
-    assert_eq!(
-        format_day_data(&day),
-        String::from("thu -- class at 2!"),
-    );
+    assert_eq!(format_day_data(&day), String::from("thu -- class at 2!"),);
 }
 
 // But often it's more typical in Rust to do things in a slightly more
@@ -106,7 +103,7 @@ impl OptionString {
 // Rust has options types, an enumeration which is either Some(val) or None:
 
 // syntax: Option<T> means optional of type T.
-fn take_option(val: Option<i32>){
+fn take_option(val: Option<i32>) {
     match val {
         Some(x) => println!("Option contained: {}", x),
         None => println!("Nothing in option"),

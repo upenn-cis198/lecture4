@@ -31,11 +31,7 @@ fn make_computer3(cpu_type: String) -> Computer {
     // ...
 
     // No need for field: EXPR syntax.
-    Computer {
-        ram,
-        harddrive,
-        cpu_type,
-    }
+    Computer { ram, harddrive, cpu_type }
 }
 
 // Tuple like structs:

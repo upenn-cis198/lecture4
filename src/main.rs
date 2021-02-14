@@ -1,10 +1,9 @@
 #![allow(dead_code, unused_variables, unused_assignments, unused_mut)]
 
-mod lifetimes;
+mod connect_4;
 mod enums;
-
-mod panic;
-mod result;
+mod lifetimes;
+mod structs;
 
 fn main() {
     println!("CIS 198 Lecture 4");

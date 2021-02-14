@@ -73,7 +73,6 @@ fn copy_string_withlifetimes<'a>(s: &'a str, n: usize) -> String {
     result
 }
 
-
 fn constant_str() -> &'static str {
     "constant"
 }
