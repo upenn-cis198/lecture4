@@ -64,6 +64,7 @@ fn test_copy_string_bad() {
     // it's derived from the scope of the original owner.
 }
 
+#[allow(clippy::needless_lifetimes)]
 fn copy_string_withlifetimes<'a>(s: &'a str, n: usize) -> String {
     let mut result = String::new();
     for i in 0..n {
@@ -122,9 +123,10 @@ fn find_a<'a>(s1: &'a str, s2: &'a str) -> &'a str {
 
     // To iterate through a &str, use .chars():
 
-    if s1.chars().next() == Some('a') {
+    if s1.starts_with('a') {
+        // equivalent but less idiomatic: s1.chars().next() == Some('a')
         &s1[0..1]
-    } else if s2.chars().next() == Some('a') {
+    } else if s2.starts_with('a') {
         &s2[0..1]
     } else {
         ""

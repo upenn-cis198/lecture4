@@ -1,1 +1,3 @@
-# Warning: These lecture notes are not yet updated for spring 2021.
+# Lecture 4: Lifetimes, Structs, and Enums
+
+(Due to time constraints, this lecture spans 2 class periods.)

@@ -10,12 +10,18 @@ pub enum DayData {
 }
 
 fn format_day_data(d: &DayData) -> String {
+    // Different ways to go from &str to String:
+    // "mon".to_owned()
+    // "mon".to_string()
+    // format!("mon")
+    // Clippy discourages the last of these.
+
     match d {
         DayData::Mon => "mon".to_owned(),
-        DayData::Tue => "tue".to_string(),
+        DayData::Tue => "tue".to_owned(),
         DayData::Wed => String::from("wed"),
         DayData::Thu(x) => format!("thu -- class at {}!", x),
-        DayData::Fri => format!("fri"),
+        DayData::Fri => "fri".to_owned(),
     }
 }
 
@@ -76,6 +82,7 @@ enum OptionString {
     NoString,
 }
 impl OptionString {
+    #[allow(clippy::inherent_to_string)]
     fn to_string(&self) -> String {
         match self {
             OptionString::SomeString(s) => s.clone(),
