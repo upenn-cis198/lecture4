@@ -3,12 +3,19 @@
 */
 // As with enums, we often #[derive(...)] to get "free" implementations of
 // useful functionality like debug printing, equality checking, cloning, etc.
-// These are called "Traits", a lot more on them later!
+// Clone, Debug, Eq, PartialEq are examples of "Traits", a lot more on them later!
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Computer {
     ram: i32,
     harddrive: i32,
     cpu_type: String,
+}
+
+#[derive(Debug)]
+pub struct TwoComputers {
+    comp1: Computer,
+    comp2: Computer,
+    len: usize,
 }
 
 // Syntax for creating an object:
@@ -22,26 +29,16 @@ pub fn make_computer1() -> Computer {
 
 #[test]
 pub fn test_computer() {
-    let comp1 = make_computer1();
-    let comp2 = make_computer2();
+    let mut comp1 = make_computer1();
+    let comp2 = make_computer1();
     println!("{:?}", comp1);
     assert_eq!(comp1, comp2);
     assert_eq!(comp1, comp1.clone());
-    // comp1.ram = 8
-    // assert!(comp1 != comp2);
+    comp1.ram = 8;
+    assert!(comp1 != comp2);
 }
 
-// Struct creation are expressions too:
-pub fn make_computer2() -> Computer {
-    Computer {
-        ram: 4,
-        harddrive: 1024,
-        cpu_type: "Intel Core i7 7600".to_owned(),
-    }
-}
-
-// Struct creation are expressions too:
-pub fn make_computer3(cpu_type: String) -> Computer {
+pub fn make_computer2(cpu_type: String) -> Computer {
     // Variables already in scope somewhere:
     let ram = 4;
     let harddrive = 1024;
@@ -58,14 +55,44 @@ pub fn pair() -> Pair {
     Pair(3, 3)
 }
 
+pub fn use_pair(p: Pair) {
+    println!("{}", p.0);
+    println!("{}", p.1);
+}
+
 /*
     Some other struct idioms
 */
+// This is called a "newtype"
 // Mainly used to wrap types.
+
+// Lets you as a programmer keep straight different things that should
+// be conceptually different
+#[derive(Debug)]
+pub struct Area(f64);
+#[derive(Debug)]
+pub struct Length(f64);
+pub fn calculate_area(l1: Length, l2: Length) -> Area {
+    Area(l1.0 * l2.0)
+}
+
+// Zero overhead abstraction!
+// In actual compiled code, Area and Length will be no different from f64.
+
+#[test]
+fn test_calculate_area() {
+    println!("{:?}", calculate_area(Length(1.0), Length(1.0)));
+}
+
 // Using type X = Y; only creates a type synonym or alias, these types are exactly the
 // same and interchangeable, if we don't want this, we can create to uniquely different
 // types using:
-struct SortedVector(Vec<i32>);
+// type Area = f64; // not usually as good
+// Advantage: don't have to re-#derive stuff and use the .0 syntax
+// Disadvantage: no static typing guarantees to keep types separate.
+
+// Another example: Sorted vector
+pub struct SortedVector(Vec<i32>);
 
 // Unit like struct:
 pub struct Trivial; // No members...
@@ -79,16 +106,32 @@ pub struct Trivial; // No members...
 // Use #[repr(C)] for identical C implementation.
 
 /*
-    Methods on structs! (similar to object oriented programming)
+    impl syntax: Methods on structs!
+
+    (similar to object oriented programming)
+
+    We have already seen these for e.g. vector:
+        v.push(1)
+        v.clear()
+    Internally the same as other functions, just
+    in a different scope and syntactically different
 */
 impl SortedVector {
     // Associated function.
     // Basically a "static" function in OO terminology.
     // nothing special about the word "new" just a convention.
-    fn new(mut vec: Vec<i32>) -> SortedVector {
-        // or -> Self
+    fn new(mut vec: Vec<i32>) -> Self {
+        // mut keyword: similar to let mut vec = ... but for
+        // owned function argument
+        // or -> SortedVector
         vec.sort_unstable();
         SortedVector(vec)
+    }
+
+    // For methods, either &self or &mut self
+
+    pub fn print(&self) {
+        println!("{:?}", self.0);
     }
 
     fn push(&mut self, val: i32) {
@@ -96,6 +139,8 @@ impl SortedVector {
         self.0.push(val);
         self.0.sort_unstable();
     }
+
+    // Less common: methods which consume the object
 
     fn split(self) -> (SortedVector, SortedVector) {
         unimplemented!();
@@ -197,7 +242,7 @@ impl MutExampleBetter {
     // Modify only field2
     pub fn modify(&self) {
         // self.field1 += 1; // doesn't work
-        self.field2.replace(3);
+        self.field2.replace(self.field2.get() + 1);
         println!("Self: {:?}", self);
     }
 }

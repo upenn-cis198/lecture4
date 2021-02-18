@@ -43,6 +43,7 @@ pub fn test_copy_string() {
 // But the memory could have gone out of scope... how would we detect that?
 
 #[test]
+#[allow(unused_variables, unused_assignments)]
 pub fn test_copy_string_bad() {
     let mut r: &str = "goodbye";
     {
@@ -133,6 +134,7 @@ pub fn find_a<'a>(s1: &'a str, s2: &'a str) -> &'a str {
 }
 
 #[test]
+#[allow(unused_variables, unused_assignments)]
 pub fn nested_lifetimes_2() {
     let s = "hello";
     // s lifetime: 'static
