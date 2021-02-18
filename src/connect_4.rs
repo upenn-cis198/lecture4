@@ -20,17 +20,25 @@ pub struct Game {
     // modification.
     to_play: Player,
 }
+
+// Instead of using the #[derive(...)] we can also implement traits manually
+impl Default for Game {
+    fn default() -> Self {
+        Self { board: Default::default(), to_play: Player::X }
+    }
+}
+
 impl Game {
     // pub fn: public API
     // fn: internal API
 
     pub fn new() -> Self {
-        Self { board: Default::default(), to_play: Player::X }
+        Default::default()
     }
 
     // Note: we shouldn't require ourselves to take &self
     // as a parameter if it isn't needed! E.g.:
-    pub fn in_range(col: usize, row: usize) -> bool {
+    fn in_range(col: usize, row: usize) -> bool {
         col <= BOARD_LEN && row <= BOARD_HGT
     }
 
@@ -38,11 +46,11 @@ impl Game {
         debug_assert!(Self::in_range(col, row));
         self.board[col].get(row).cloned()
     }
-    fn playable(&self, col: usize) -> bool {
+    pub fn playable(&self, col: usize) -> bool {
         debug_assert!(col <= BOARD_LEN);
         self.board[col].len() < BOARD_HGT
     }
-    fn play(&mut self, col: usize, player: Player) {
+    pub fn play(&mut self, col: usize, player: Player) {
         debug_assert!(col <= BOARD_LEN);
         debug_assert!(self.playable(col));
         self.board[col].push(player);
@@ -53,7 +61,7 @@ impl Game {
         data structures
     */
 
-    fn valid_plays(&self) -> impl Iterator<Item = usize> + '_ {
+    pub fn valid_plays(&self) -> impl Iterator<Item = usize> + '_ {
         (0..BOARD_LEN).filter(move |&i| self.playable(i))
     }
 
@@ -81,7 +89,7 @@ impl Game {
             .filter(|&blck| Self::in_range(blck[3].0, blck[3].1))
     }
 
-    fn winner(&self) -> Option<Player> {
+    pub fn winner(&self) -> Option<Player> {
         for blck in Self::blocks_of_four() {
             for &player in &[Player::X, Player::O] {
                 if blck.iter().all(|&(i, j)| self.get(i, j) == Some(player)) {

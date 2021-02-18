@@ -27,23 +27,23 @@
 
 */
 
-fn copy_string(s: &str, n: usize) -> String {
+pub fn copy_string(s: &str, n: usize) -> String {
     let mut result = String::new();
-    for i in 0..n {
+    for _i in 0..n {
         result += s;
     }
     result
 }
 
 #[test]
-fn test_copy_string() {
+pub fn test_copy_string() {
     assert_eq!(copy_string("hello", 3), "hellohellohello");
 }
 
 // But the memory could have gone out of scope... how would we detect that?
 
 #[test]
-fn test_copy_string_bad() {
+pub fn test_copy_string_bad() {
     let mut r: &str = "goodbye";
     {
         let s = String::from("hello");
@@ -65,26 +65,26 @@ fn test_copy_string_bad() {
 }
 
 #[allow(clippy::needless_lifetimes)]
-fn copy_string_withlifetimes<'a>(s: &'a str, n: usize) -> String {
+pub fn copy_string_withlifetimes<'a>(s: &'a str, n: usize) -> String {
     let mut result = String::new();
-    for i in 0..n {
+    for _i in 0..n {
         result += s;
     }
     result
 }
 
-fn constant_str() -> &'static str {
+pub fn constant_str() -> &'static str {
     "constant"
 }
 
-fn constant_str_dummyargs<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+pub fn constant_str_dummyargs<'a>(_s1: &'a str, _s2: &'a str) -> &'a str {
     // Normally return value would be String, but let's try it with
     // an &str.
     // let s = format!("{} {}", s1, s2);
     constant_str()
 }
 
-fn nested_lifetimes() {
+pub fn nested_lifetimes() {
     let s = "hello";
     // s lifetime: 'static
     {
@@ -112,7 +112,7 @@ fn nested_lifetimes() {
 
 // Let's do one last example where lifetimes actually show up a bit more practically.
 
-fn find_a<'a>(s1: &'a str, s2: &'a str) -> &'a str {
+pub fn find_a<'a>(s1: &'a str, s2: &'a str) -> &'a str {
     // Return the first character of s1 or s2 if it is an a,
     // else return "".
     // (Better to return Option, but we will get to that shortly.)
@@ -133,7 +133,7 @@ fn find_a<'a>(s1: &'a str, s2: &'a str) -> &'a str {
 }
 
 #[test]
-fn nested_lifetimes_2() {
+pub fn nested_lifetimes_2() {
     let s = "hello";
     // s lifetime: 'static
     {

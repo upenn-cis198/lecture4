@@ -1,30 +1,47 @@
-// named field structs
-struct Computer {
+/*
+    Named field structs
+*/
+// As with enums, we often #[derive(...)] to get "free" implementations of
+// useful functionality like debug printing, equality checking, cloning, etc.
+// These are called "Traits", a lot more on them later!
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Computer {
     ram: i32,
     harddrive: i32,
     cpu_type: String,
 }
 
 // Syntax for creating an object:
-fn make_computer1() -> Computer {
+pub fn make_computer1() -> Computer {
     Computer {
         ram: 4,
         harddrive: 1024,
-        cpu_type: "Intel Core i7 7600".to_string(),
+        cpu_type: "Intel Core i7 7600".to_owned(),
+    }
+}
+
+#[test]
+pub fn test_computer() {
+    let comp1 = make_computer1();
+    let comp2 = make_computer2();
+    println!("{:?}", comp1);
+    assert_eq!(comp1, comp2);
+    assert_eq!(comp1, comp1.clone());
+    // comp1.ram = 8
+    // assert!(comp1 != comp2);
+}
+
+// Struct creation are expressions too:
+pub fn make_computer2() -> Computer {
+    Computer {
+        ram: 4,
+        harddrive: 1024,
+        cpu_type: "Intel Core i7 7600".to_owned(),
     }
 }
 
 // Struct creation are expressions too:
-fn make_computer2() -> Computer {
-    Computer {
-        ram: 4,
-        harddrive: 1024,
-        cpu_type: "Intel Core i7 7600".to_string(),
-    }
-}
-
-// Struct creation are expressions too:
-fn make_computer3(cpu_type: String) -> Computer {
+pub fn make_computer3(cpu_type: String) -> Computer {
     // Variables already in scope somewhere:
     let ram = 4;
     let harddrive = 1024;
@@ -35,12 +52,15 @@ fn make_computer3(cpu_type: String) -> Computer {
 }
 
 // Tuple like structs:
-struct Pair(i32, i32);
+pub struct Pair(i32, i32);
 
-fn pair() -> Pair {
+pub fn pair() -> Pair {
     Pair(3, 3)
 }
 
+/*
+    Some other struct idioms
+*/
 // Mainly used to wrap types.
 // Using type X = Y; only creates a type synonym or alias, these types are exactly the
 // same and interchangeable, if we don't want this, we can create to uniquely different
@@ -48,7 +68,7 @@ fn pair() -> Pair {
 struct SortedVector(Vec<i32>);
 
 // Unit like struct:
-struct Modified; // No members...
+pub struct Trivial; // No members...
 
 // In memory, values are stack allocated, just like C++ or C. This avoids heap allocation
 // of values (which is what happen in Python, Java, etc).
@@ -58,13 +78,15 @@ struct Modified; // No members...
 
 // Use #[repr(C)] for identical C implementation.
 
-// Methods
+/*
+    Methods on structs! (similar to object oriented programming)
+*/
 impl SortedVector {
     // Associated function.
     // Basically a "static" function in OO terminology.
-
     // nothing special about the word "new" just a convention.
     fn new(mut vec: Vec<i32>) -> SortedVector {
+        // or -> Self
         vec.sort_unstable();
         SortedVector(vec)
     }
@@ -80,12 +102,12 @@ impl SortedVector {
     }
 }
 
-fn do_sorted_stuff() {
+pub fn do_sorted_stuff() {
     let mut sv = SortedVector::new(vec![1, 2, 3]);
     // ...
     sv.push(3);
 
-    let (sv1, sv2) = sv.split();
+    let (_sv1, _sv2) = sv.split();
 
     // What happens?
     // sv.push(3);
@@ -93,18 +115,89 @@ fn do_sorted_stuff() {
 
 // Functions not defined in any impl block are free functions.
 
-// Talk about interior mutability?
+/*
+    Interior Mutability
+*/
 
-// Save for next lecture on traits and generics?
-// Better Definition of SortedVector:
+pub struct MutExample {
+    field1: usize,
+    field2: String,
+}
+impl MutExample {
+    pub fn immut_method(&self) {
+        // self.field1 = 0; // not possible
+        if self.field1 != self.field2.len() {
+            panic!("Invariant violated :(")
+        } else if self.field1 == 0 {
+            println!("warning: field1 is 0");
+        }
+    }
+    pub fn mut_method(&mut self) {
+        self.field1 += 1;
+        self.field2.push_str(" words words words");
+    }
 
-// struct SortedVector2<T>{
-//     vec: Vec<T>
-// }
+    pub fn consuming_method(self) {
+        // consumes the struct
+        println!("Goodbye, {}", self.field1);
+        println!("Goodbye, {}", self.field2);
+        // **memory deallocated**
+        // can be explicit if we want:
+        drop(self);
+    }
 
-// impl<T: Ord> SortedVector2<T> {
-//     fn new(mut vec: Vec<T>) -> Self {
-//         vec.sort_unstable();
-//         SortedVector2{vec}
-//     }
-// }
+    pub fn associated_fun() {
+        println!("I don't have any self parameter");
+    }
+
+    // What if we want mutability for some fields but not others?
+    // Two main ways:
+
+    // First way:
+    fn mutate_field2(field2: &mut String) {
+        field2.push_str(" words words words");
+    }
+    pub fn mutate_object(&mut self) {
+        Self::mutate_field2(&mut self.field2);
+
+        // Note that &self is still mutable, so how does this help?
+        // Recall: in Rust you either have one mutable reference,
+        // or many immutable references.
+        // So if you need to have a bunch of immutable references to
+        // self.field1, this allows you to still pass an immutable
+        // ref to self.field1.
+        // Sometimes this solves certain lifetime-related issues.
+    }
+}
+
+// Second way: "Interior Mutability"
+/*
+    This gets into some of the more advanced features of Rust
+
+    In general, Rust follows the following philosophy:
+    - There is some "default" behavior with respect to mutability, ownership,
+      etc.
+    - If you want something different, you "opt out" or "opt in" to more
+      complex behavior by using one of the type wrappers in the standard
+      library
+
+    Some of the most important type wrappers:
+    - Arc, Rc: for shared ownership
+    - Box: store data on the heap that would normally be on the stack
+    - Cell, RefCell: interior mutability
+*/
+use std::cell::Cell;
+
+#[derive(Debug)]
+pub struct MutExampleBetter {
+    field1: usize,
+    field2: Cell<usize>,
+}
+impl MutExampleBetter {
+    // Modify only field2
+    pub fn modify(&self) {
+        // self.field1 += 1; // doesn't work
+        self.field2.replace(3);
+        println!("Self: {:?}", self);
+    }
+}

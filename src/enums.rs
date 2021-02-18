@@ -9,7 +9,7 @@ pub enum DayData {
     Fri,
 }
 
-fn format_day_data(d: &DayData) -> String {
+pub fn format_day_data(d: &DayData) -> String {
     // Different ways to go from &str to String:
     // "mon".to_owned()
     // "mon".to_string()
@@ -25,7 +25,7 @@ fn format_day_data(d: &DayData) -> String {
     }
 }
 
-fn get_current_day(day: usize) -> DayData {
+pub fn get_current_day(day: usize) -> DayData {
     if day == 4 {
         DayData::Thu(2)
     } else if day == 1 {
@@ -36,7 +36,7 @@ fn get_current_day(day: usize) -> DayData {
 }
 
 #[test]
-fn test_day() {
+pub fn test_day() {
     let day: DayData = get_current_day(4);
     assert_eq!(format_day_data(&day), String::from("thu -- class at 2!"),);
 }
@@ -55,15 +55,15 @@ pub enum DayData2 {
     OtherDayData(DayData),
 }
 impl DayData2 {
-    fn format_day(&self) -> String {
+    pub fn format_day(&self) -> String {
         // means the same thing as fn format_day(self: &DayData2) -> String.
         // Don't have to implement the formatting myself because we derive(Debug)
         format!("{:?}", self) // relying on Debug
     }
-    fn duplicate(&self) -> (DayData2, DayData2) {
+    pub fn duplicate(&self) -> (DayData2, DayData2) {
         (self.clone(), self.clone()) // relying on Clone
     }
-    fn check_all_eq(&self, other1: &DayData2, other2: &DayData2) -> bool {
+    pub fn check_all_eq(&self, other1: &DayData2, other2: &DayData2) -> bool {
         self == other1 && self == other2 // relying on PartialEq, Eq
     }
 }
@@ -74,27 +74,27 @@ impl DayData2 {
 
 // A special enum type: Option!
 // It's equivalent to:
-enum OptionString {
+pub enum OptionString {
     SomeString(String),
     NoString,
 }
 impl OptionString {
     #[allow(clippy::inherent_to_string)]
-    fn to_string(&self) -> String {
+    pub fn to_string(&self) -> String {
         match self {
             OptionString::SomeString(s) => s.clone(),
             OptionString::NoString => "".to_owned(),
         }
     }
-    fn from_string(s: String) -> Self {
+    pub fn from_string(s: String) -> Self {
         OptionString::SomeString(s)
     }
     // also note:
-    fn do_some_mutation(&mut self) {
+    pub fn do_some_mutation(&mut self) {
         // if you want mutable access, the "&mut self" is equivalent to
         // 'self: &mut Self' or 'self: &mut OptionString'.
         // new syntax that is useful: 'if let':
-        if let OptionString::SomeString(s) = self {
+        if let OptionString::SomeString(_s) = self {
             *self = OptionString::NoString
         }
     }
@@ -103,7 +103,7 @@ impl OptionString {
 // Rust has options types, an enumeration which is either Some(val) or None:
 
 // syntax: Option<T> means optional of type T.
-fn take_option(val: Option<i32>) {
+pub fn take_option(val: Option<i32>) {
     match val {
         Some(x) => println!("Option contained: {}", x),
         None => println!("Nothing in option"),
