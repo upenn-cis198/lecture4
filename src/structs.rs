@@ -58,6 +58,8 @@ pub fn pair() -> Pair {
 pub fn use_pair(p: Pair) {
     println!("{}", p.0);
     println!("{}", p.1);
+    // pattern matching
+    let Pair(_x, _y) = p;
 }
 
 /*
